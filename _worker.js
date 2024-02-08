@@ -1,69 +1,69 @@
-// <!--GAMFC-->version base on commit 43fad05dcdae3b723c53c226f8181fc5bd47223e, time is 2023-06-22 15:20:02 UTC<!--GAMFC-END-->.
-// @ts-ignore
-import { connect } from 'cloudflare:sockets';
+//<！--GAMFC-->基于提交43fad05dcdae3b723c53c226f8181fc5bd47223e的版本，时间为2023-06-2215:20:02UTC<！--GAMFC-END-->。
+//@ts- 忽略
+进口 { 连接 } 从……起 'cloudflare：套接字';
 
-// How to generate your own UUID:
-// [Windows] Press "Win + R", input cmd and run:  Powershell -NoExit -Command "[guid]::NewGuid()"
-let userID = '77a571fb-4fd2-4b37-8596-1b7d9728bb5c';
+//如何生成自己的UUID：
+//[Windows]按"Win+R"，输入cmd并运行：Powershell-NoExit-Command"[guid]：：NewGuid()"
+让 userid='eed57587-a34b-4a01-81de-aadaab32778d';
 
-const proxyIPs = ["[2a01:4f8:c2c:123f:64:5:ac40:6c0a]"];//['cdn.xn--b6gac.eu.org', 'cdn-all.xn--b6gac.eu.org', 'edgetunnel.anycast.eu.org'];
+Const proxyIPs=["[2a01:4f8:c2c:123f:64:5:ac40:6c0a]"];//['cdn.xn-b6gac.eu.org'，'cdn-all.xn-b6gac.eu.org'，'edgetunnel.anycast.eu.org']；
 
-let proxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
+让 ProxyIP=proxyIPs[数学。地板(数学。随机()*proxyIPs。长度)];
 
-let dohURL = 'https://sky.rethinkdns.com/1:-Pf_____9_8A_AMAIgE8kMABVDDmKOHTAKg='; // https://cloudflare-dns.com/dns-query or https://dns.google/dns-query
+让 dohURL='https://sky.rethinkdns.com/1:-Pf_____9_8A_AMAIgE8kMABVDDmKOHTAKg=';//https://cloudflare-dns.com/dns-query或https://dns.google/dns-query
 
-// v2board api environment variables (optional) deprecated, please use planetscale.com instead
+//v2board api环境变量(可选)已弃用，请改用plarescale.com
 
-if (!isValidUUID(userID)) {
-	throw new Error('uuid is invalid');
+如果 (!isValidUUID(userid)) {
+	扔 新的误差('uid无效');
 }
 
-export default {
+出口 默认 {
 	/**
-	 * @param {import("@cloudflare/workers-types").Request} request
-	 * @param {{UUID: string, PROXYIP: string, DNS_RESOLVER_URL: string, NODE_ID: int, API_HOST: string, API_TOKEN: string}} env
-	 * @param {import("@cloudflare/workers-types").ExecutionContext} ctx
-	 * @returns {Promise<Response>}
-	 */
-	async fetch(request, env, ctx) {
-		// uuid_validator(request);
-		try {
-			userID = env.UUID || userID;
-			proxyIP = env.PROXYIP || proxyIP;
-			dohURL = env.DNS_RESOLVER_URL || dohURL;
-			let userID_Path = userID;
-			if (userID.includes(',')) {
-				userID_Path = userID.split(',')[0];
+*@param{import("@cloudflare/workers-types").Request}请求
+*@param{{UUID:string，ProxyIP:string，DNS_resolver_URL:string，NODE_ID:int，API_HOST:string，API_TOKEN:string}}env
+*@param{import("@cloudflare/workers-types").ExecutionContext}CTX
+*@returns{Promise<Response>}
+*/
+	异步 取来(请求,env,CTX) {
+		//uuid_validator(请求)；
+		尝试 {
+userid=环境。UUID||userID；
+ProxyIP=环境ProxyIP||ProxyIP；
+dohURL=环境DNS_resolver_URL|dohURL；
+			让 userid_Path=userID；
+			如果 (userid。包括(',')) {
+userid_Path=userID。分离(',')[0];
 			}
-			const upgradeHeader = request.headers.get('Upgrade');
-			if (!upgradeHeader || upgradeHeader !== 'websocket') {
-				const url = new URL(request.url);
-				switch (url.pathname) {
-					case '/cf':
-						return new Response(JSON.stringify(request.cf, null, 4), {
-							status: 200,
-							headers: {
-								"Content-Type": "application/json;charset=utf-8",
+			Const upgradeHeader=请求。页眉.得到('升级');
+			如果 (！upgradeHeader||upgradeHeader！=='Websocket') {
+				Const URL=新的URL(请求。URL);
+				开关 (URL。路径名) {
+					案例 '/cf':
+						返回 新的响应(JSON.使字符串化(请求。CF,无效的,4),{
+							状态:200,
+							页眉:{
+								"内容类型":"application/json；charset=utf-8",
 							},
 						});
-					case `/${userID_Path}`: {
-						const vlessConfig = getVLESSConfig(userID, request.headers.get('Host'));
-						return new Response(`${vlessConfig}`, {
-							status: 200,
-							headers: {
-								"Content-Type": "text/html; charset=utf-8",
+					案例 `/${userid_Path}`:{
+						Const vlessConfig=getVLESSConfig(用户ID，请求。页眉.得到('主机'));
+						返回 新的响应(`${vlessConfig}`,{
+							状态:200,
+							页眉:{
+								"内容类型":"text/html；charset=utf-8",
 							}
 						});
 					}
-					case `/sub/${userID_Path}`: {
-						const url = new URL(request.url);
-						const searchParams = url.searchParams;
-						let vlessConfig = createVLESSSub(userID, request.headers.get('Host'));
-						// If 'format' query param equals to 'clash', convert config to base64
-						if (searchParams.get('format') === 'clash') {
-							vlessConfig = btoa(vlessConfig);
+					案例 '/sub/${userid_Path}`:{
+						Const URL=新的URL(请求。URL);
+						Const searchParams=url。searchParams;
+						让 vlessConfig=createVLESSSub(用户ID，请求。页眉.得到('主机'));
+						//如果'format'查询参数等于'clash'，请将config转换为base64
+						如果 (searchParams。得到('格式')==='碰撞') {
+vlessConfig=BtoA(vlessConfig);
 						}
-						// Construct and return response object
+						//构造并返回响应对象
 						return new Response(vlessConfig, {
 							status: 200,
 							headers: {
